@@ -50,24 +50,18 @@ def rebin_data(data, new_bin):
         return np.mean(data2, axis=(2, 4))
 
 
-def write_fits(xcen, ycen, pos_angl, incl, syst_vel, vmax, rd, sig0, data, filename, oversample=1, chi2r=None, dof=None, mask=None):
-
-    if mask is not None:
-        data[np.logical_not(mask)] = float('nan')
+def write_fits(xcen, ycen, pos_angl, incl, syst_vel, vmax, rdv, rdf, sig0, data, filename):
 
     hdu = fits.PrimaryHDU(data=data)
     hdu.header.append(('PA', pos_angl, 'position angle in degree'))
     hdu.header.append(('INCL', incl, 'inclination in degree'))
-    hdu.header.append(('XCEN', xcen / oversample, 'center abscissa in pixel'))
-    hdu.header.append(('YCEN', ycen / oversample, 'center ordinate in pixel'))
-    hdu.header.append(('RD', rd / oversample, 'characteristic radius in pixel'))
+    hdu.header.append(('XCEN', xcen, 'center abscissa in pixel'))
+    hdu.header.append(('YCEN', ycen, 'center ordinate in pixel'))
+    hdu.header.append(('RDV', rdv, 'characteristic radius of the velocity in pixel'))
+    hdu.header.append(('RDF', rdf, 'characteristic radius of th flux in pixel'))
     hdu.header.append(('MAX_VEL', vmax, 'maximum velocity in km/s'))
     hdu.header.append(('SYST_VEL', syst_vel, 'systemic velocity in km/s'))
     hdu.header.append(('SIG0', sig0, 'dispersion velocity in km/s'))
-    if chi2r:
-        hdu.header.append(('CHI2R', chi2r, 'reduced chi square'))
-        hdu.header.append(('DOF', dof, 'degree of freedom'))
-
     hdulist = fits.HDUList(hdu)
     hdulist.writeto(filename + '.fits', checksum=True, overwrite=True)
 

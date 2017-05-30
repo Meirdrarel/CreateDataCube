@@ -126,9 +126,10 @@ def main(parser):
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description="Create data CUBE of one galaxy and/or clumps"
-                                                 "\nBy default this program create low and high resolution cubes, parameters have to be determined in the low "
-                                                 "resolution"
-                                                 "\nThe possibility to create only 'high resolution' coming ASAP",
+                                                 "\nCube are created with le size and the resolution needed."
+                                                 "\nYou can create cube with smaller resolution with argument -WSD but all paramters must be in "
+                                                 "\nthe lower resolution"
+                                                 "\nMore information about the project on https://github.com/Meirdrarel/CreateDataCube",
                                      formatter_class=argparse.RawTextHelpFormatter)
     main(parser)
 

@@ -27,7 +27,7 @@ def main(parser):
     parser.add_argument('vmax', help='velocity of the model', type=int)
     parser.add_argument('-fm', default='flat', help='flux model', type=str)
     parser.add_argument('-vm', default='flat', help='velocity model', type=str)
-    parser.add_argument('-clump', nargs='+', dest='ifclump', help="create clump", type=int)
+    parser.add_argument('-clump', nargs='+', dest='ifclump', help="create clump", type=float)
     parser.add_argument('-nocube', action='store_false', dest='ifcube', help="do not create cube", default=True)
     parser.add_argument('-rdf', default=3, type=float, help="characteristic radius of the flux model, by default is 3 pixels")
     parser.add_argument('-rdv', default=3, type=float, help="characteristic radius of the velocity model, by default is 3 pixels")
@@ -118,7 +118,7 @@ def main(parser):
         print('\nAdd clumps to the cube')
         cube_conv_SP += clump.cube
         model.write_fits(cube_conv_SP, args.path+'CUBE_wc', verbose=False)
-        tools.write_fits(xcen, ycen, args.pa, args.incl, args.vs, args.vmax, rdv, rdf, args.sig0, np.sum(cube_conv_SP, axis=0), args.path + 'MAP_wc_flux')
+        tools.write_fits(xcen, ycen, args.pa, args.incl, args.vs, args.vmax, rdv, rdf, args.sig0, np.sum(cube_conv_SP, axis=0), args.path + 'MAP_flux_wc')
 
         cube_rebin += clump_rebin
         model.write_fits(cube_rebin, args.path + 'CUBE_wc_LD', oversample=over, verbose=False)

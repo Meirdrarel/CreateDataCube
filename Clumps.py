@@ -25,7 +25,7 @@ class Clumps:
         self.slope = slope
         self.dlbda = dlbda
 
-        self.im_size = im_size
+        self.im_size = np.array(im_size)
         self.radius, self.theta = tools.sky_coord_to_galactic(xcen, ycen, pos_angl, incl, im_size=im_size)
 
         self.lsf_size = int(np.ceil(lrange / dlbda))
@@ -40,7 +40,7 @@ class Clumps:
         self.lbda = None
         self.lbda_ind = np.arange(-self.lsf_size/2*dlbda, self.lsf_size/2*dlbda, dlbda) + self.lbda0
         self.flux = np.zeros(im_size)
-        self.rtrunc = rtrunc
+        self.rtrunc = min(np.min(im_size/2), rtrunc)
         self.vel = None
 
     def disk_velocity(self, vel_model):
@@ -58,10 +58,12 @@ class Clumps:
     def create_clumps(self, size, vel_model, fwhm_lsf):
 
         for i in range(len(size)):
+            print(self.rtrunc)
             yc = np.random.randint(-int(self.rtrunc), int(self.rtrunc)) + self.xcen
             xc = int(np.random.randint(-int(self.rtrunc), int(self.rtrunc))*np.cos(np.radians(self.incl))) + self.ycen
             y, x = np.indices(self.im_size)
             self.flux[np.where(np.sqrt((x-xc)**2+(y-yc)**2) <= size[i])] = 3000
+            print('\n -add clump in {}:{}'.format(xc, yc))
 
         self.disk_velocity(vel_model)
 

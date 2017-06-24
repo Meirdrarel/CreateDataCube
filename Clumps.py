@@ -10,7 +10,7 @@ class Clumps:
                  slope=0):
 
         # self.light_speed = 299792.458  # km/s
-        self.center_bright = 2000
+        self.brightness = 2000
 
         self.xcen = xcen
         self.ycen = ycen
@@ -40,7 +40,7 @@ class Clumps:
         self.lbda = None
         self.lbda_ind = np.arange(-self.lsf_size/2*dlbda, self.lsf_size/2*dlbda, dlbda) + self.lbda0
         self.flux = np.zeros(im_size)
-        self.rtrunc = min(np.min(im_size/2), rtrunc)
+        self.crad = min(np.min(im_size/2), rtrunc)
         self.vel = None
 
     def disk_velocity(self, vel_model):
@@ -58,11 +58,10 @@ class Clumps:
     def create_clumps(self, size, vel_model, fwhm_lsf):
 
         for i in range(len(size)):
-            print(self.rtrunc)
-            yc = np.random.randint(-int(self.rtrunc), int(self.rtrunc)) + self.xcen
-            xc = int(np.random.randint(-int(self.rtrunc), int(self.rtrunc))*np.cos(np.radians(self.incl))) + self.ycen
+            yc = np.random.randint(-int(self.crad), int(self.crad)) + self.xcen
+            xc = int(np.random.randint(-int(self.crad), int(self.crad))*np.cos(np.radians(self.incl))) + self.ycen
             y, x = np.indices(self.im_size)
-            self.flux[np.where(np.sqrt((x-xc)**2+(y-yc)**2) <= size[i])] = 3000
+            self.flux[np.where(np.sqrt((x-xc)**2+(y-yc)**2) <= size[i])] = self.brightness + np.random.randint(0, 1000, 1)
             print('\n -add clump in {}:{}'.format(xc, yc))
 
         self.disk_velocity(vel_model)
@@ -127,7 +126,7 @@ class Clumps:
             self.xcen /= oversample
             self.ycen /= oversample
             self.charac_rad /= oversample
-            self.rtrunc /= oversample
+            self.crad /= oversample
             if verbose:
                 print('----------------------------------------\nfor low resolution :')
         else:

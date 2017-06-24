@@ -1,8 +1,6 @@
-#!usr/bin/env python
-# import sys
+#!/usr/bin/env python3
+
 import os
-# sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname('../Class/'), '..')))
-# sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname('../Tools/'), '..')))
 import flux_model as fm
 import velocity_model as vm
 import tools
@@ -63,7 +61,6 @@ def main(parser):
         else:
             ycen = (int(np.ceil(size[0]/2/over)) + 0.5) * over - 0.5
 
-
     else:
         over = 1
         pix_size = config['pix_size'][0]
@@ -76,41 +73,47 @@ def main(parser):
         else:
             ycen = int(np.ceil(size[0]/2))
 
-
     rdf = args.rdf * over
     rdv = args.rdv * over
     rtrunc = args.rt * over
 
     if args.ifcube:
-        print('\nCreate Cube')
+        print(pix_size)
+        print('\nCreate Cube centered in {}A with a sampling of {}A and a width of {}A'.format(config['lbda0'][0],config['deltal'][0], config['lrange'][0]))
 
-        model = Model3D(xcen, ycen, args.pa, args.incl, args.vs, args.vmax, rdf, rdv, rtrunc, args.sig0, fm_list[args.fm], config['lbda0'][0],
-                        config['deltal'][0],
+        model = Model3D(xcen, ycen, args.pa, args.incl, args.vs, args.vmax, rdf, rdv, rtrunc, args.sig0, fm_list[args.fm], config['lbda0'][0], config['deltal'][0],
                         config['lrange'][0], pix_size, im_size=size, slope=args.slope)
         model.create_cube(vm_list[args.vm])
-        cube_conv_SP = model.conv_lsf(model.cube, config['fwhm_lsf'][0]/config['deltal'][0])
-
+        cube_conv_HD = model.conv_psf(model.cube, config['fwhm_psf'][0]/config['pix_size'][0])
+        print('\nSpectral convolution with a fwhm of {} pixels'.format(config['fwhm_lsf'][0]/config['deltal'][0]))
+        cube_conv_SP = model.conv_lsf(cube_conv_HD, config['fwhm_lsf'][0]/config['deltal'][0])
         model.write_fits(cube_conv_SP, args.path+'CUBE')
         tools.write_fits(xcen, ycen, args.pa, args.incl, args.vs, args.vmax, rdv, rdf, args.sig0, np.sum(cube_conv_SP, axis=0), args.path+'MAP_flux')
         tools.write_fits(xcen, ycen, args.pa, args.incl, args.vs, args.vmax, rdv, rdf, args.sig0, model.v, args.path+'MAP_vel')
+        tools.write_txt(xcen, ycen, args.pa, args.incl, args.vs, args.vmax, rdv, rdf, args.sig0, config['fwhm_psf'][0]/config['pix_size'][0],
+                        0, args.path+'param_model.txt')
 
         if args.WSD:
-            cube_conv = model.conv_psf(cube_conv_SP, config['fwhm_psf'][1]*over)
+            cube_conv = model.conv_psf(cube_conv_SP, config['fwhm_psf'][1]/config['pix_size'][1]*over)
             cube_rebin = tools.rebin_data(cube_conv, over)
             model.write_fits(cube_rebin, args.path+'CUBE_LD', oversample=over)
             modv_ld = tools.rebin_data(model.v, over)
-            tools.write_fits(args.xcen, args.ycen, args.pa, args.incl, args.vs, args.vmax, rdv, rdf, args.sig0, modv_ld, args.path+'MAP_vel_LD')
+            XtoWrite = (xcen + 0.5)/over - 0.5
+            YtoWrite = (ycen + 0.5)/over - 0.5
+            tools.write_fits(XtoWrite, YtoWrite, args.pa, args.incl, args.vs, args.vmax, rdv, rdf, args.sig0, modv_ld, args.path+'MAP_vel_LD')
+            tools.write_txt(XtoWrite, YtoWrite, args.pa, args.incl, args.vs, args.vmax, rdv/over, rdf/over, args.sig0, config['fwhm_psf'][1]/config[
+                'pix_size'][1],
+                            config['fwhm_lsf'][1]/config['deltal'][1], args.path+'param_model.txt')
 
     if args.ifclump:
         print('\nCreate Clumps')
-
         clump = Clumps(xcen, ycen, args.pa, args.incl, args.vs, args.vmax, rdv, rtrunc, args.sig0, config['lbda0'][0], config['deltal'][0],
                        config['lrange'][0], pix_size, im_size=size, slope=args.slope)
         clump.create_clumps(args.ifclump, vm_list[args.vm], config['fwhm_lsf'][0]/config['deltal'][0])
         clump.write_fits(clump.cube, args.path + 'CLUMPS')
 
         if args.WSD:
-            clump_conv = clump.conv_psf(clump.cube, config['fwhm_psf'][1]*over)
+            clump_conv = clump.conv_psf(clump.cube, config['fwhm_psf'][1]/config['pix_size'][1]*over)
             clump_rebin = tools.rebin_data(clump_conv, over)
             clump.write_fits(clump_rebin, args.path+'CLUMP_LD', oversample=over)
 

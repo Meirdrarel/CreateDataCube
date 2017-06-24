@@ -9,7 +9,7 @@ class Model3D:
     def __init__(self, xcen, ycen, pos_angl, incl, syst_vel, max_vel, rdf, rdv, rtrunc, sig0, flux_model, lbda0, dlbda, lrange, pix_size, im_size=(240, 240),
                  slope=0):
         # self.light_speed = 299792.458  # km/s
-        self.center_bright = 1500 + np.random.randint(0, 1000, 1)
+        self.center_bright = 2000
 
         self.xcen = xcen
         self.ycen = ycen

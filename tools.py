@@ -1,6 +1,6 @@
 import math
 import numpy as np
-from astropy.io import fits
+from astropy.io import fits, ascii
 import os
 import sys
 
@@ -74,3 +74,12 @@ def search_file(path, filename):
         else:
             print('File {} not found in directory {}'.format(filename, path))
             sys.exit()
+
+
+def write_txt(xcen, ycen, pa, incl, vs, vmax, rdv, rdf, sig0, psfx, psfz, filename):
+    data = np.array([xcen, ycen, pa, incl, vs, vmax, rdv, rdf, sig0, psfx, psfz], dtype=float)
+    names = ['x', 'y', 'pa', 'incl', 'vs', 'vm', 'rdv', 'rdf', 'sig0', 'psfx', 'psfz']
+    formats = {'x': '%5.1f', 'y': '%5.1f', 'pa': '%5.1f', 'incl': '%5.1f', 'vs': '%5.1f', 'vm': '%5.1f', 'rdv': '%5.1f', 'rdf': '%5.1f', 'sig0': '%5.1f',
+               'psfx': '%5.1f', 'psfz': '%5.1f'}
+
+    ascii.write(data, output=filename, names=names, format='fixed_width', delimiter=None, formats=formats, overwrite=True)
